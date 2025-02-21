@@ -46,6 +46,8 @@ export default function Home() {
   const handleOnChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const searchTerm = e.target.value;
 
+    setSearchTerm(searchTerm);
+
     console.log("filtering advocates...");
     const filteredAdvocates = advocates.filter((advocate) => {
       return (
@@ -66,13 +68,9 @@ export default function Home() {
   }
 
   return (
-    <main style={{ margin: "24px" }}>
-      <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <Search onChange={handleOnChange} />
-      <br />
-      <br />
+    <main className="container p-6">
+      <h1 className="flex justify-center text-2xl font-bold text-gray-900 mb-6">Solace Advocates</h1>
+      <Search onChange={handleOnChange} searchTerm={searchTerm} className="mb-6" />
       <AdvocateTable filteredAdvocates={filteredAdvocates} handleNextPage={handleNextPage} />
     </main>
   );
