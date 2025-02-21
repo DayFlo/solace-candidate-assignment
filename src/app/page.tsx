@@ -63,15 +63,15 @@ export default function Home() {
     setFilteredAdvocates(filteredAdvocates);
   };
 
-  const handleNextPage = () => {
-    setPage(page + 1);
+  const handleChangePage = (n: number) => {
+    setPage(page + n);
   }
 
   return (
     <main className="container p-6">
       <h1 className="flex justify-center text-2xl font-bold text-gray-900 mb-6">Solace Advocates</h1>
       <Search onChange={handleOnChange} searchTerm={searchTerm} className="mb-6" />
-      <AdvocateTable filteredAdvocates={filteredAdvocates} handleNextPage={handleNextPage} />
+      <AdvocateTable filteredAdvocates={filteredAdvocates} currentPage={page} handleChangePage={handleChangePage} />
     </main>
   );
 }
