@@ -1,3 +1,7 @@
+**Loom Recording of My Concluding Thoughts**
+
+[Loom Video](https://www.loom.com/share/11ce6871e57049dca81c2440d1e7c5a0)
+
 ## **💅 Styling**
 1. **Scrollable Table**
 
