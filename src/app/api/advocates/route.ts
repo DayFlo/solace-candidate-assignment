@@ -1,12 +1,34 @@
-import db from "../../../db";
-import { advocates } from "../../../db/schema";
-import { advocateData } from "../../../db/seed/advocates";
+import { NextRequest } from "next/server";
 
-export async function GET() {
-  // Uncomment this line to use a database
-  // const data = await db.select().from(advocates);
+import db from "@db/index";
+import { advocates } from "@db/schema";
+import { advocateData } from "@db/seed/advocates";
 
-  const data = advocateData;
 
-  return Response.json({ data });
+export async function GET(req: NextRequest) {
+  // Biiig boi try catch
+  const params =  req.nextUrl.searchParams;
+  
+  try {
+    if (params.size > 0) {
+      const page = params.get('page')
+
+      const limit = 10;
+      const offset = Number.parseInt(`${page}`) * limit;
+
+      // Mmmm, maybe future we add some ordering
+      const data = await db.select().from(advocates)
+        .limit(limit)
+        .offset(offset);
+
+      return Response.json({ data });
+      } else {
+      const data = await db.select().from(advocates)
+
+      return Response.json({ data });
+    }
+  } catch (error) {
+    console.error(error);
+    return Response.json({ error });
+  }
 }
