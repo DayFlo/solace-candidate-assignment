@@ -1,9 +1,9 @@
-export default function AdvocateTable({ filteredAdvocates, ...props }: {
+export default function AdvocateTable({ filteredAdvocates, handleNextPage }: {
     filteredAdvocates: any[];
     [key: string]: any;
 }) {
     return <>
-        <table {...props}>
+        <table>
             <thead>
             <th>First Name</th>
             <th>Last Name</th>
@@ -32,6 +32,7 @@ export default function AdvocateTable({ filteredAdvocates, ...props }: {
                 );
             })}
             </tbody>
+            <button onClick={handleNextPage}>Next Page</button>
         </table>
     </>
 }

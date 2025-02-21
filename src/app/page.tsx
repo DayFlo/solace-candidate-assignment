@@ -5,22 +5,45 @@ import { useEffect, useState, ChangeEvent } from "react";
 import Search from '@components/search';
 import AdvocateTable from '@components/advocateTable';
 
+// Adding a debounce function for the search because the click version was pretty bad
+function useDebounce(value: string, delay = 100) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [advocates, setAdvocates] = useState([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState([]);
+  const [page, setPage] = useState(0);
 
+  const debouncedSearchTerm = useDebounce(searchTerm)
   useEffect(() => {
     console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
-      response.json().then((jsonResponse) => {
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
-      });
-    });
-  }, []);
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    // Merp! adding a catch for this
+    const apiCall = async () => { 
+      try {
+        await fetch("/api/advocates?" + new URLSearchParams({ page: page.toString() }).toString())
+          .then((response) => {
+            response.json().then((jsonResponse) => {
+              setAdvocates(jsonResponse.data);
+              setFilteredAdvocates(jsonResponse.data);
+            });
+          });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    apiCall();
+  }, [debouncedSearchTerm, page]);
+
+  const handleOnChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const searchTerm = e.target.value;
 
     console.log("filtering advocates...");
@@ -38,20 +61,19 @@ export default function Home() {
     setFilteredAdvocates(filteredAdvocates);
   };
 
-  const onClick = () => {
-    console.log(advocates);
-    setFilteredAdvocates(advocates);
-  };
+  const handleNextPage = () => {
+    setPage(page + 1);
+  }
 
   return (
     <main style={{ margin: "24px" }}>
       <h1>Solace Advocates</h1>
       <br />
       <br />
-      <Search onChange={setSearchTerm} onClick={onClick} />
+      <Search onChange={handleOnChange} />
       <br />
       <br />
-      <AdvocateTable filteredAdvocates={filteredAdvocates} />
+      <AdvocateTable filteredAdvocates={filteredAdvocates} handleNextPage={handleNextPage} />
     </main>
   );
 }
