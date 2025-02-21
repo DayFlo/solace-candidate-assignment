@@ -6,7 +6,7 @@ import Search from '@components/search';
 import AdvocateTable from '@components/advocateTable';
 
 // Adding a debounce function for the search because the click version was pretty bad
-function useDebounce(value: string, delay = 100) {
+function useDebounce(value: string, delay = 300) {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedValue(value), delay);
@@ -17,7 +17,6 @@ function useDebounce(value: string, delay = 100) {
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [advocates, setAdvocates] = useState([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState([]);
   const [page, setPage] = useState(0);
 
@@ -28,15 +27,21 @@ export default function Home() {
     // Merp! adding a catch for this
     const apiCall = async () => { 
       try {
-        await fetch("/api/advocates?" + new URLSearchParams({ page: page.toString() }).toString())
-          .then((response) => {
-            response.json().then((jsonResponse) => {
-              setAdvocates(jsonResponse.data);
-              setFilteredAdvocates(jsonResponse.data);
-            });
-          });
+        const response = await fetch("/api/advocates?" + new URLSearchParams({ page: page.toString(), search: searchTerm }).toString())
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const { error, data } = await response.json();
+
+        console.log(error)
+        if (error) {
+          throw new Error(error);
+        }
+        setFilteredAdvocates(data);
       } catch (error) {
         console.error(error);
+        setFilteredAdvocates([]);
       }
     }
 
@@ -47,20 +52,6 @@ export default function Home() {
     const searchTerm = e.target.value;
 
     setSearchTerm(searchTerm);
-
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
-        advocate.yearsOfExperience.includes(searchTerm)
-      );
-    });
-
-    setFilteredAdvocates(filteredAdvocates);
   };
 
   const handleChangePage = (n: number) => {
